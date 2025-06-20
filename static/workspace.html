@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keller AI Workspace - Core Stream</title>
+    <!-- Tailwind CSS for utility-first styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP - The professional animation library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <!-- Custom Fonts for bespoke typography -->
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    
+    <style>
+        .font-heading { font-family: 'Clash Display', sans-serif; }
+        .font-body { font-family: 'Satoshi', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #0A0A0A; color: #E5E7EB; overflow-x: hidden; }
+        .grid-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3; background-image: linear-gradient(rgba(255,255,255,0.03) 0.5px, transparent 0.5px), linear-gradient(90deg, rgba(255,255,255,0.03) 0.5px, transparent 0.5px); background-size: 6rem 6rem; }
+        .aura { position:fixed; z-index:-2; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,0.08) 0%,rgba(249,115,22,0) 65%); filter:blur(150px); animation: float-aura 60s infinite ease-in-out alternate; }
+        #aura-1 { top:-50vh; left:-50vw; width:120vw; height:120vh; }
+        @keyframes float-aura { 0%{transform:translate(0,0)} 50%{transform:translate(20vw,-20vh)} 100%{transform:translate(0,0)} }
+        .glass-command-bar { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .command-input { border: none; background: transparent !important; color: white !important; -webkit-text-fill-color: white !important; -webkit-box-shadow: 0 0 0px 1000px #0A0A0A inset !important; border-bottom: 2px solid rgba(255, 255, 255, 0.1); transition: border-color 0.3s ease; }
+        .command-input:focus { outline: none; border-bottom-color: #F97316; }
+        .stealth-button { color: #6b7280; transition: all 0.3s ease-in-out; }
+        .stealth-button:hover { color: #F97316; text-shadow: 0 0 15px rgba(249, 115, 22, 0.6); transform: scale(1.05); }
+        .action-icon { font-family: sans-serif; font-weight: bold; font-size: 1.2rem; line-height: 1; color: #4B5563; transition: color 0.2s, text-shadow 0.2s ease, transform 0.2s ease; }
+        .action-icon:hover { color: #F97316; text-shadow: 0 0 8px #F97316; transform: scale(1.1); }
+        .milestone-card {
+            background: rgba(18,18,18, 0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 0 50px rgba(249, 115, 22, 0); /* Glow animated by GSAP */
+            transition: transform 0.3s ease;
+        }
+        .milestone-card:hover { transform: translateY(-5px); }
+        .task-checkbox { appearance: none; -webkit-appearance: none; background-color: transparent; width: 1.25rem; height: 1.25rem; border: 2px solid #4B5563; border-radius: 0.25rem; cursor: pointer; transition: all 0.2s ease; flex-shrink: 0; }
+        .task-checkbox:checked { background-color: #F97316; border-color: #F97316; }
+        .task-checkbox:checked::after { content: '✔'; display: block; text-align: center; color: white; font-size: 0.8rem; line-height: 1.1rem; }
+        .task-text.completed { text-decoration: line-through; color: #6b7280; }
+        .genesis-star-container { opacity: 0; }
+    </style>
+</head>
+<body class="font-body">
+
+    <!-- ATMOSPHERIC LAYERS -->
+    <div class="grid-overlay"></div> <div id="aura-1" class="aura"></div>
+
+    <!-- COMMAND BAR HEADER -->
+    <header class="fixed top-0 left-0 right-0 p-4 px-6 md:px-8 flex justify-between items-center z-50 glass-command-bar">
+        <a href="landing.html" class="font-heading text-2xl font-semibold">Keller</a>
+        <button id="clear-plan-button" class="hidden font-semibold text-sm text-gray-500 hover:text-red-400 transition-colors">Clear & Reset</button>
+    </header>
+
+    <!-- MAIN WORKSPACE -->
+    <main id="main-content" class="min-h-screen w-full flex flex-col items-center justify-center p-6">
+        <div id="workspace-container" class="w-full max-w-3xl"></div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC (The Core, Focused Engine) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- SECTION 1: DOM REFERENCES & STATE ---
+            const workspaceContainer = document.getElementById('workspace-container');
+            const mainContent = document.getElementById('main-content');
+            const clearPlanButton = document.getElementById('clear-plan-button');
+            let plan = null;
+
+            // --- SECTION 2: CORE RENDERING FUNCTIONS ---
+            const renderEmptyState = () => {
+                mainContent.classList.add('justify-center');
+                mainContent.classList.remove('justify-start', 'pt-24', 'pb-20');
+                clearPlanButton.classList.add('hidden');
+                workspaceContainer.innerHTML = `<div id="empty-state-container" class="w-full max-w-4xl text-center mx-auto opacity-0"><h2 class="font-heading text-4xl md:text-5xl font-bold mb-4">Define the vision.</h2><p class="font-body text-lg text-gray-400 mb-12">The AI will architect a detailed, actionable plan from a single sentence.</p><form id="goal-form" class="flex flex-col md:flex-row items-center gap-6 w-full max-w-2xl mx-auto"><input type="text" id="goal-input" placeholder="Define your ambition..." class="command-input w-full bg-transparent text-center md:text-left text-xl md:text-2xl font-semibold px-2 py-4"><button type="submit" class="stealth-button font-heading font-semibold text-lg flex-shrink-0 flex items-center justify-center gap-3"><span>Generate Plan</span><svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button></form></div>`;
+                
+                // **** THIS IS THE FIX ****
+                // After creating the form, we must attach the event listener to it.
+                document.getElementById('goal-form').addEventListener('submit', handleGenerate);
+
+                gsap.to("#empty-state-container", { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
+            };
+
+            const renderLoadingState = () => {
+                mainContent.classList.add('justify-center');
+                mainContent.classList.remove('justify-start', 'pt-24', 'pb-20');
+                workspaceContainer.innerHTML = `<div id="loading-container" class="text-center"><svg class="genesis-star-container w-64 h-64 mx-auto" viewBox="0 0 200 200"><defs><linearGradient id="star-grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FBBF24" /><stop offset="100%" stop-color="#F97316" /></linearGradient></defs><path id="star-core" d="M100 80 L120 100 L100 120 L80 100 Z" fill="url(#star-grad)"></path></svg><h3 class="font-heading text-3xl font-bold text-orange-400 mt-4 opacity-0">Architecting Vision</h3><p class="text-gray-400 mt-2 opacity-0">...Calibrating generative matrix...</p></div>`;
+                const tl = gsap.timeline();
+                tl.to(".genesis-star-container", { opacity: 1, duration: 0.5, ease: 'power2.out' }).to("#loading-container h3, #loading-container p", { opacity: 1, duration: 1, stagger: 0.2, ease: 'power3.out' }, "-=0.2");
+                gsap.to("#star-core", { scale: 1.15, rotation: 360, transformOrigin: "center", duration: 8, ease: "power1.inOut", yoyo: true, repeat: -1, filter: "drop-shadow(0 0 25px rgba(249, 115, 22, 0.7))"});
+            };
+
+            const renderPlanView = () => {
+                if (!plan) return;
+                mainContent.classList.remove('justify-center');
+                mainContent.classList.add('justify-start', 'pt-24', 'pb-20');
+                workspaceContainer.innerHTML = `<div id="plan-container" class="opacity-0 w-full"><div id="plan-header" class="text-center mb-12"><h2 class="font-heading text-4xl md:text-5xl font-bold text-white break-words">${plan.goal}</h2></div><div id="milestones-list" class="space-y-6"></div></div>`;
+                
+                const milestonesList = document.getElementById('milestones-list');
+                milestonesList.innerHTML = plan.milestones.map((milestone, i) => buildMilestoneHTML(milestone, i)).join('');
+
+                gsap.fromTo("#plan-container", {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.8, ease: 'power2.out'});
+                gsap.fromTo(".milestone-card", {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out', delay: 0.3});
+                
+                clearPlanButton.classList.remove('hidden');
+            };
+
+            const buildMilestoneHTML = (milestone, i) => `
+                <div id="node-${i}" class="milestone-card rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4 gap-4">
+                        <h3 class="font-heading text-2xl font-bold text-orange-400">${milestone.title}</h3>
+                        <button data-action="regenerate" data-milestone-index="${i}" class="action-icon" title="Regenerate Milestone">↻</button>
+                    </div>
+                    <div class="divide-y divide-gray-800/50 task-list">${milestone.tasks.map((task, taskIndex) => buildTaskHTML(i, taskIndex, task)).join('')}</div>
+                </div>`;
+            
+            const buildTaskHTML = (mIndex, tIndex, task) => `<div class="flex items-center gap-3 py-2"><input type="checkbox" id="task-${mIndex}-${tIndex}" data-action="toggle-task" data-milestone-index="${mIndex}" data-task-index="${tIndex}" class="task-checkbox" ${task.completed ? 'checked' : ''}><label for="task-${mIndex}-${tIndex}" class="task-text flex-grow ${task.completed ? 'completed' : ''} cursor-pointer">${task.text}</label></div>`;
+            
+            // --- SECTION 3: EVENT HANDLING ---
+const handleGenerate = (e) => {
+    e.preventDefault();
+    const goalInput = document.getElementById('goal-input');
+    const goalText = goalInput.value.trim(); if (!goalText) return;
+    gsap.to("#empty-state-container", { opacity: 0, duration: 0.5, onComplete: () => {
+        renderLoadingState();
+        
+        // MODIFICATION: Use a relative URL. This works both locally and when deployed.
+        // It tells the browser to make the request to the same server that served the HTML file.
+        fetch('/generate-plan', { 
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ goal: goalText })
+        }).then(res => { if (!res.ok) return res.json().then(err => Promise.reject(err)); return res.json(); })
+          .then(data => { plan = data; savePlanToLocalStorage(); gsap.to("#loading-container", { opacity: 0, duration: 0.5, onComplete: renderPlanView }); })
+          .catch(err => { console.error('Error from backend:', err); alert(`An error occurred: ${err.error || 'Could not connect to the backend server.'}`); renderEmptyState(); });
+    }});
+};
+            
+            const handleInteraction = (event) => {
+                const target = event.target.closest('[data-action]');
+                if (!target) return;
+                const { action, milestoneIndex, taskIndex } = target.dataset;
+
+                if (action === 'toggle-task') {
+                    plan.milestones[milestoneIndex].tasks[taskIndex].completed = target.checked;
+                    document.querySelector(`label[for="${target.id}"]`).classList.toggle('completed', target.checked);
+                    savePlanToLocalStorage();
+                } else if (action === 'regenerate') {
+                    const cardContent = target.closest('.milestone-card').querySelector('.task-list');
+                    const rotation = gsap.to(target, { rotation: -360, duration: 1, ease: 'none', repeat: -1 });
+                    gsap.to(cardContent, { opacity: 0, duration: 0.5 });
+                    setTimeout(() => {
+                        const newTasks = createMockTasks(plan.milestones[milestoneIndex].tasks.length);
+                        plan.milestones[milestoneIndex].tasks = newTasks;
+                        savePlanToLocalStorage();
+                        cardContent.innerHTML = newTasks.map((task, tIndex) => buildTaskHTML(milestoneIndex, tIndex, task)).join('');
+                        rotation.kill();
+                        gsap.set(target, { rotation: 0 });
+                        gsap.to(cardContent, { opacity: 1, duration: 0.5 });
+                    }, 1500);
+                }
+            };
+
+            const handleClearPlan = () => { if (confirm("Are you sure? This will delete the current plan.")) { plan = null; localStorage.removeItem('kellerPlan'); const planEl = document.getElementById('plan-container'); if(planEl) { gsap.to(planEl, { opacity: 0, duration: 0.5, onComplete: renderEmptyState }); } else { renderEmptyState(); } } };
+            
+            // --- SECTION 4: LOCAL STORAGE & UTILITY ---
+            const savePlanToLocalStorage = () => { try { localStorage.setItem('kellerPlan', JSON.stringify(plan)); } catch (e) { console.error("Error saving to localStorage", e); } };
+            const loadPlanFromLocalStorage = () => { try { const saved = localStorage.getItem('kellerPlan'); if (saved) { plan = JSON.parse(saved); renderPlanView(); } else { renderEmptyState(); } } catch (e) { localStorage.removeItem('kellerPlan'); renderEmptyState(); } };
+            const createMockTasks = (count) => { const allTasks = ["Define user personas & pain points.", "Analyze top 3 competitors' strengths/weaknesses.", "Outline core tech stack (frontend, backend, DB).", "Sketch user flow diagrams for key interactions.", "Design a component-based UI Kit.", "Build and test a high-fidelity interactive prototype.", "Finalize brand identity and typography scales."]; let selected = new Set(); while(selected.size < count) { selected.add(allTasks[Math.floor(Math.random() * allTasks.length)]); } return Array.from(selected).map(t => ({ text: t, completed: false, notes: "" })); };
+            
+            // --- SECTION 5: INITIALIZATION ---
+            workspaceContainer.addEventListener('click', handleInteraction);
+            clearPlanButton.addEventListener('click', handleClearPlan);
+            loadPlanFromLocalStorage();
+        });
+    </script>
+</body>
+</html>

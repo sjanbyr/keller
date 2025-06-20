@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keller AI - The Art of Strategy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@700,600&f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CORE TYPOGRAPHY & SETUP --- */
+        .font-heading { font-family: 'Clash Display', sans-serif; }
+        .font-body { font-family: 'Satoshi', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: #101010; }
+
+        /* --- ATMOSPHERIC LAYERS --- */
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -3;
+            background-image: linear-gradient(rgba(255,255,255,0.03) 0.5px, transparent 0.5px),
+                              linear-gradient(90deg, rgba(255,255,255,0.03) 0.5px, transparent 0.5px);
+            background-size: 6rem 6rem;
+        }
+        @keyframes float-aura { 0%{transform:translate(0,0)} 50%{transform:translate(20vw,-20vh)} 100%{transform:translate(0,0)} }
+        @keyframes float-aura-2 { 0%{transform:translate(0,0)} 50%{transform:translate(-15vw,20vh)} 100%{transform:translate(0,0)} }
+        .aura { position:fixed; z-index:-2; border-radius:50%; background:radial-gradient(circle,rgba(249,115,22,0.1) 0%,rgba(249,115,22,0) 65%); filter:blur(120px); }
+        #aura-1 { top:-40vh; left:-30vw; width:120vw; height:120vh; animation: float-aura 60s ease-in-out infinite; }
+        #aura-2 { bottom:-50vh; right:-40vw; width:100vw; height:100vh; animation: float-aura-2 70s ease-in-out infinite alternate; }
+        .grain-overlay::after {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+            pointer-events: none; opacity: 0.02;
+            background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXWBgYGHh4d5eXlzc3OLi4ubm5uVlZWYmJilpaW8vLyrq6xycnKcg4OSEhIRENsvMDCnp6c3Nzc9PT2KiooAAAASVJECOGvAAAAA1JLR0I/gDC24rQAAAKEElEQVRIx42W2Y6rMAxG823wEw7T/e97im0yZ6/J2kAnzznpopO7lDQeDPfb//99faOTf71t1P5ptY9U9qMHS53EVNihs2MrU/lMVk3N0QKYx+C6v4P33uERnsFq5L8QSsVwT2T5JZTQ65kSAE2Z1ZCDKksgBSrY0+Lw9aU2+oWr2dGcyShkgo5b3+kTbFzTWBQHCCACb4A9gV2g6Z5g2wIhqy8Y4zgWB9Ow+FkQ2k49gg9NGl2UaykS4sIvfI80gy8ETVgAOPgGqgCK6J2f8yB2go3Mno3gPAsg4AIVeC5B0BBAPosvGyB4DhIARCQKAICQGASCfE+3AkI/AMQJAEBFAaZCiWiI0eCqg7IIFYgYBgCAkAJAEb00EgCIUAgKAZKAmcDI2jY3gEAkCgyQCQlAIKAAkAEBCZ4G0DQAyQQJQAKARZ3fR8iK29AJA0ZAIKAScIAFKc/0iICwCZ9HKfVvChA5cE1AKABCA3wP6tT1bAGIBvADQAKEBSiA5dGAkAUAEIACyA/TfZZALsAAlAAQB5wF4ALgDQAoQgMgA8Z9IEYgE8ABwA0AKUIMv+v2AEwAEATQDsAXQAGgDGAJMA2wCUAG0AEAAcANgE4AbYBSAAfgfAAgBRABpA+43g2A3A/wEYAjAD4AbgDUAxgAbA0A1sA9oAjoA9gDAADEASgDoA1AIsAvsAVgDbAI4AFABNADoA9gDGALgAGAFwAUAEcADgBIA8gDcAVgB2AM4AfgfYAyAA2APsA/MAXABkAfgAmADEAfgC4AvADwA/gEcAnANsAntFi+ABAAAA//8DAFrwJ1qLltWAAAAAElFTkSuQmCC");
+        }
+        
+        /* --- UI STYLES --- */
+        .glass-nav {
+            background: rgba(16, 16, 16, 0.5);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .cta-gradient-button {
+            filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.5));
+            transition: all 0.3s ease-in-out;
+        }
+        .cta-gradient-button:hover {
+            filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.8));
+            transform: scale(1.05);
+        }
+        .glass-pane { background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01)); border-radius:1rem; padding:1px; }
+        .glass-pane-content { background:rgba(22,22,22,0.65); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:calc(1rem - 1px); height:100%; width:100%; padding:2rem; }
+        
+        /* --- ANIMATIONS --- */
+        @keyframes orbit-cw { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes orbit-ccw { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+        @keyframes fade-in-out { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        .sj-logo-container { transform-origin: center; }
+        .orbit-element { transform-origin: center; animation-iteration-count: infinite; }
+        #path1 { animation: orbit-cw 11s linear infinite, fade-in-out 11s linear infinite; }
+        #path2 { animation: orbit-ccw 7s linear infinite; }
+        #path3 { animation: orbit-cw 13s ease-in-out infinite, fade-in-out 13s ease-in-out infinite alternate; }
+        #path4 { animation: orbit-ccw 17s linear infinite; opacity: 0.6; }
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            will-change: transform, opacity;
+            transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.15s;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="font-body text-gray-200 bg-[#101010] overflow-x-hidden">
+
+    <!-- ATMOSPHERIC LAYERS -->
+    <div class="grid-overlay"></div>
+    <div id="aura-1" class="aura"></div>
+    <div id="aura-2" class="aura"></div>
+    <div class="grain-overlay"></div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <div class="relative z-0">
+        <!-- HEADER / NAVBAR (Corrected Minimal Version) -->
+        <header class="fixed top-0 left-0 right-0 p-4 px-6 md:px-12 flex justify-between items-center z-50 glass-nav">
+            <a href="#hero" class="font-heading text-2xl font-semibold">Keller</a>
+            <!-- Middle navigation links have been removed -->
+            <a href="workspace.html" class="cta-gradient-button px-5 py-2.5 rounded-full border border-orange-500/30">
+                <span class="font-heading font-semibold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-500">
+                    Start Architecting
+                </span>
+            </a>
+        </header>
+
+        <!-- SECTION 1: HERO -->
+        <section id="hero" class="min-h-screen flex items-center pt-24 px-6 md:px-12">
+            <div class="w-full max-w-7xl mx-auto flex justify-between items-center">
+                <div class="max-w-4xl">
+                    <h2 class="font-heading text-6xl md:text-8xl font-bold leading-none reveal">
+                        Ambition,<br>Engineered.
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-400 mt-6 max-w-xl reveal" style="transition-delay: 150ms;">
+                        Keller translates grand ambition into a strategic daily practice. We provide the structure for your genius.
+                    </p>
+                </div>
+                <div class="hidden md:block reveal" style="transition-delay: 450ms;">
+                    <svg width="250" height="250" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="sj-logo-container" style="filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.3));">
+                        <text x="50%" y="50%" class="font-heading" font-size="60" fill="white" text-anchor="middle" dominant-baseline="central">SJ</text>
+                        <path id="path1" class="orbit-element" d="M30,100 a70,70 0 1,0 140,0 a70,70 0 1,0 -140,0" stroke="#F97316" stroke-width="2" stroke-linecap="round"/><line id="path2" class="orbit-element" x1="10" y1="50" x2="190" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><path id="path3" class="orbit-element" d="M100,20 a80,80 0 0,1 0,160" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/><line id="path4" class="orbit-element" x1="50" y1="10" x2="150" y2="190" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THE THESIS -->
+        <section id="thesis" class="py-24 md:py-32 px-6 md:px-12">
+            <div class="max-w-3xl mx-auto text-left">
+                <p class="font-heading text-xs font-bold tracking-widest text-orange-400 mb-6 reveal">THE THESIS</p>
+                <p class="font-body text-2xl md:text-3xl leading-snug text-gray-300 reveal">
+                    The gap between a visionary idea and its realization is not a failure of talent—it's a failure of process. Greatness is lost in the chaos of the day-to-day. A brilliant strategy, broken down into precise, manageable actions, is the only antidote.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 3: HOW IT WORKS / FEATURES -->
+        <section id="features" class="py-24 md:py-32 px-6 md:px-12">
+            <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                <div class="reveal glass-pane"><div class="glass-pane-content">
+                    <div class="font-heading text-5xl font-bold text-orange-400/50 mb-4">01</div>
+                    <h3 class="font-heading text-2xl font-semibold mb-2">Articulate Vision</h3>
+                    <p class="text-gray-400">Define your objective in natural language. From market disruption to mastering a new discipline.</p>
+                </div></div>
+                <div class="reveal glass-pane" style="transition-delay: 150ms;"><div class="glass-pane-content">
+                    <div class="font-heading text-5xl font-bold text-orange-400/50 mb-4">02</div>
+                    <h3 class="font-heading text-2xl font-semibold mb-2">Generate Roadmap</h3>
+                    <p class="text-gray-400">Our AI core analyzes, structures, and builds your bespoke strategic plan in seconds.</p>
+                </div></div>
+                <div class="reveal glass-pane" style="transition-delay: 300ms;"><div class="glass-pane-content">
+                    <div class="font-heading text-5xl font-bold text-orange-400/50 mb-4">03</div>
+                    <h3 class="font-heading text-2xl font-semibold mb-2">Execute with Clarity</h3>
+                    <p class="text-gray-400">Follow a focused workflow designed to build and sustain high-velocity momentum.</p>
+                </div></div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: THE MANIFESTO QUOTE -->
+        <section id="manifesto" class="py-32 md:py-48 px-6 text-center">
+            <div class="max-w-5xl mx-auto">
+                <h3 class="font-heading font-bold text-4xl md:text-6xl leading-tight text-gray-300 reveal">
+                    The friction is not in the dream. <br/> It's in the <span class="text-white">day-to-day.</span>
+                </h3>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center py-12 px-6">
+             <a href="#" class="font-body text-sm text-gray-600 hover:text-orange-400 transition-colors">Keller AI — For the Architects of Tomorrow.</a>
+        </footer>
+    </div>
+
+    <!-- JAVASCRIPT FOR SCROLL ANIMATIONS -->
+    <script>
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { 
+                    entry.target.classList.add('active'); 
+                }
+            });
+        }, { threshold: 0.2 });
+        document.querySelectorAll('.reveal').forEach(el => { observer.observe(el); });
+    </script>
+</body>
+</html>
