@@ -60,7 +60,7 @@ def generate_plan():
         if not user_goal:
             return jsonify({"error": "Goal is required."}), 400
         
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-2.5-flash')
         full_prompt = f"{MASTER_PROMPT}\n\nMy goal is: {user_goal}"
 
         # Relax safety settings to prevent the API from being overly cautious
